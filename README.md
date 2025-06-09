@@ -2,7 +2,7 @@
 ### Author: Gabriel Rau
 
 ## Description
-This is a tool that can be used to transfer data from one mysql server to another. It is also able to obfuscate data such as emails, phone numbers, etc.
+This is a tool/script for copying data from a mysql/mariadb prod env to a testing environment. You can configure it to obfuscate sensitive data
 
 
 
