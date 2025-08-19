@@ -8,9 +8,12 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/gabetrau/reaper/cfg"
 	"github.com/gabetrau/reaper/ui"
 	"github.com/spf13/cobra"
 )
+
+var globalCfg cfg.ReaperCfg
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -21,6 +24,7 @@ var rootCmd = &cobra.Command{
 	for creating databases for testing environments.
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Printf("reap db is %s\nsow db is %s\n", globalCfg.ReapDb, globalCfg.SowDb)
 		p := tea.NewProgram(ui.InitialModel())
 		if _, err := p.Run(); err != nil {
 			fmt.Printf("Alas, there's been an error: %v", err)
@@ -31,7 +35,8 @@ var rootCmd = &cobra.Command{
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the rootCmd.
-func Execute() {
+func Execute(cfg *cfg.ReaperCfg) {
+	globalCfg = *cfg
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
