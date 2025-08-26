@@ -1,10 +1,16 @@
 package main
 
 import (
+	"log"
+
 	"github.com/gabetrau/reaper/cfg"
 	"github.com/gabetrau/reaper/cmd"
 )
 
 func main() {
-	cmd.Execute(cfg.GetConfig())
+	cfg, err := cfg.GetConfig()
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	cmd.Execute(cfg)
 }
