@@ -63,9 +63,6 @@ func (tv TablesView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if *tv.Finished {
 			return tv, tea.Quit
 		}
-		for i := 0; i < len(tv.Tables); i++ {
-			tv.Tables[i].Percent += float64(i) * 0.1 + .1
-		}
 		return tv, tv.tickCmd()
 	default:
 		return tv, nil
