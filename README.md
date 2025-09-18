@@ -1,4 +1,5 @@
 # Reaper
+A tool for migrating data from one sql database to another. Also supports obfuscating sensitive data to create database replicas for testing environments.
 
 ## Configuration
 create a file called `.reaper.yml` in your home directory. You can also use an env variable called `REAPER_PATH` to specify your configuration elsewhere. 
@@ -6,6 +7,7 @@ create a file called `.reaper.yml` in your home directory. You can also use an e
 *Example .reaper.yml*
 ```
 source:
+  # Choices are mysql, postgres, sqlite. Use the mysql driver if you are using Maria
   driver: "mysql"
   host: "localhost"
   db: "databasename"

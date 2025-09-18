@@ -11,7 +11,6 @@ import (
 type SupportedDriver string
 
 const (
-	Maria SupportedDriver = "maria"
 	MySQL SupportedDriver = "mysql"
 	PostgreSQL SupportedDriver = "postgres"
 	SQLite SupportedDriver = "sqlite"
@@ -78,8 +77,6 @@ func GetConfig() (*ReaperCfg, error) {
 
 func kindOf(s string) (SupportedDriver, error) {
 	switch s {
-	case string(Maria):
-		return Maria, nil
 	case string(MySQL):
 		return MySQL, nil
 	case string(PostgreSQL):
