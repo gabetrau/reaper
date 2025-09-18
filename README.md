@@ -7,7 +7,6 @@ create a file called `.reaper.yml` in your home directory. You can also use an e
 *Example .reaper.yml*
 ```
 source:
-  # Choices are mysql, postgres, sqlite. Use the mysql driver if you are using Maria
   driver: "mysql"
   host: "localhost"
   db: "databasename"
@@ -23,3 +22,8 @@ destination:
   password: "pass1!"
   port: "3306"
 ```
+### Supported Drivers
+- MySQL/MariaDB -> "mysql"
+- PostgreSQL -> "postgres"
+- SQLite -> "sqlite"
+
