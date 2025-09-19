@@ -22,7 +22,7 @@ destination:
   password: "pass1!"
   port: "3306"
 ```
-### Supported Drivers
+*Supported Drivers*
 - MySQL/MariaDB -> "mysql"
 - PostgreSQL -> "postgres"
 - SQLite -> "sqlite"

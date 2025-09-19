@@ -22,7 +22,7 @@ type tickMsg time.Time
 type Table struct {
 	Name string
 	// 0.0 - 1.0
-	Percent float64
+	Percent *float64
 	progress progress.Model
 }
 
@@ -40,8 +40,8 @@ func (tv TablesView) View() string {
 	output := "\n"
 	for _, t := range tv.Tables {
 		wordspace := strings.Repeat(" ", maxTableNameLen - len(t.Name))
-		if t.Percent < 100 {
-			output += pad + t.Name + wordspace + t.progress.ViewAs(t.Percent) + "\n"
+		if *t.Percent < 100 {
+			output += pad + t.Name + wordspace + t.progress.ViewAs(*t.Percent) + "\n"
 		}
 	}
 	output += "\n" + pad + helpStyle("press ctrl+c to quit") + "\n\n"
@@ -75,7 +75,7 @@ func (tv TablesView) tickCmd() tea.Cmd {
 	return tea.Tick(time.Millisecond * 50, func(t time.Time) tea.Msg {
 		notFinished := false 
 		for _, t := range tv.Tables {
-			if t.Percent < 1.0  {
+			if *t.Percent < 1.0  {
 				notFinished = true 
 			}
 		}
@@ -84,7 +84,7 @@ func (tv TablesView) tickCmd() tea.Cmd {
 	})
 }
 
-func NewTable(name string, percent float64) Table {
+func NewTable(name string, percent *float64) Table {
 	return Table{
 		Name: name,
 		Percent: percent,
