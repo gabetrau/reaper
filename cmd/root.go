@@ -42,11 +42,13 @@ var rootCmd = &cobra.Command{
 			go copyTableData(src, dest, e, progChan)
 			tableMap[e] = ui.NewTable(e, progChan)
 		}
+
+		tblsInProg := len(tables)
 		p := tea.NewProgram(ui.TablesView{
 			Tables: tables,
 			TableMap: tableMap,
 			ProgChan: progChan,
-			Finished: len(tables),
+			TblsInProg: &tblsInProg,
 		})
 		if _, err := p.Run(); err != nil {
 			log.Printf("Alas, there's been an error: %v", err)

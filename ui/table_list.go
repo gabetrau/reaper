@@ -2,6 +2,7 @@ package ui
 
 import (
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/progress"
@@ -35,7 +36,7 @@ type TablesView struct {
 	Tables []string
 	TableMap map[string]Table
 	ProgChan chan Progress 
-	Finished int
+	TblsInProg *int
 }
 
 func (tv TablesView) Init() tea.Cmd {
@@ -44,7 +45,7 @@ func (tv TablesView) Init() tea.Cmd {
 
 func (tv TablesView) View() string {
 	pad := strings.Repeat(" ", padding)
-	output := "\n"
+	output := "\n" + "Tables in progress: " + strconv.Itoa(*tv.TblsInProg) + "\n\n"
 	for _, t := range tv.Tables {
 		wordspace := strings.Repeat(" ", maxTableNameLen - len(tv.TableMap[t].Name))
 		output += pad + tv.TableMap[t].Name + wordspace + tv.TableMap[t].progress.ViewAs(*tv.TableMap[t].currentPer) + "\n"
@@ -87,10 +88,10 @@ func (tv TablesView) finishCmd() tea.Cmd {
 				panic(fmt.Sprintf("Progress msg received for unknown table '%s'", pm.Name))
 			}
 			if pm.Percent == 1.0 {
-				tv.Finished--
+				*tv.TblsInProg-- 
 			}
 		}
-		return finishMsg(tv.Finished == 0)
+		return finishMsg(*tv.TblsInProg == 0)
 	}
 }
 
