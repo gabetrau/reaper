@@ -1,8 +1,8 @@
 package ui
 
 import (
+	"fmt"
 	"strings"
-	"time"
 
 	"github.com/charmbracelet/bubbles/progress"
 	tea "github.com/charmbracelet/bubbletea"
@@ -17,32 +17,37 @@ const (
 
 var helpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#626262")).Render
 
-type tickMsg time.Time
+type finishMsg bool 
 
 type Table struct {
 	Name string
 	// 0.0 - 1.0
-	Percent *float64
+	currentPer *float64
 	progress progress.Model
 }
 
+type Progress struct {
+	Name string
+	Percent float64
+}
+
 type TablesView struct {
-	Tables []Table
-	Finished *bool
+	Tables []string
+	TableMap map[string]Table
+	ProgChan chan Progress 
+	Finished int
 }
 
 func (tv TablesView) Init() tea.Cmd {
-	return tv.tickCmd() 
+	return tv.finishCmd() 
 }
 
 func (tv TablesView) View() string {
 	pad := strings.Repeat(" ", padding)
 	output := "\n"
 	for _, t := range tv.Tables {
-		wordspace := strings.Repeat(" ", maxTableNameLen - len(t.Name))
-		if *t.Percent < 100 {
-			output += pad + t.Name + wordspace + t.progress.ViewAs(*t.Percent) + "\n"
-		}
+		wordspace := strings.Repeat(" ", maxTableNameLen - len(tv.TableMap[t].Name))
+		output += pad + tv.TableMap[t].Name + wordspace + tv.TableMap[t].progress.ViewAs(*tv.TableMap[t].currentPer) + "\n"
 	}
 	output += "\n" + pad + helpStyle("press ctrl+c to quit") + "\n\n"
 	return output
@@ -56,14 +61,14 @@ func (tv TablesView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
             return tv, tea.Quit
 		}
 	case tea.WindowSizeMsg:
-		for _, t := range tv.Tables {
+		for _, t := range tv.TableMap {
 			t.progress.Width = min(msg.Width - padding*2 - 4, maxWidth)
 		}
-	case tickMsg:
-		if *tv.Finished {
-			return tv, tea.Quit
+	case finishMsg:
+		if msg {
+			return tv, tea.Quit 
 		}
-		return tv, tv.tickCmd()
+		return tv, tv.finishCmd() 
 	default:
 		return tv, nil
     }
@@ -71,23 +76,29 @@ func (tv TablesView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     return tv, nil
 }
 
-func (tv TablesView) tickCmd() tea.Cmd {
-	return tea.Tick(time.Millisecond * 50, func(t time.Time) tea.Msg {
-		notFinished := false 
-		for _, t := range tv.Tables {
-			if *t.Percent < 1.0  {
-				notFinished = true 
+func (tv TablesView) finishCmd() tea.Cmd {	
+	return func() tea.Msg {
+		pm, ok := <-tv.ProgChan
+		if ok {
+			t, exists := tv.TableMap[pm.Name]
+			if exists {
+				*t.currentPer = pm.Percent
+			} else {
+				panic(fmt.Sprintf("Progress msg received for unknown table '%s'", pm.Name))
+			}
+			if pm.Percent == 1.0 {
+				tv.Finished--
 			}
 		}
-		*tv.Finished = !notFinished
-		return tickMsg(t)
-	})
+		return finishMsg(tv.Finished == 0)
+	}
 }
 
-func NewTable(name string, percent *float64) Table {
+func NewTable(name string, perChan chan Progress) Table {
+	per := float64(0.0)
 	return Table{
 		Name: name,
-		Percent: percent,
+		currentPer: &per,
 		progress: progress.New(progress.WithSolidFill("#8E73FF")),
 	}
 }

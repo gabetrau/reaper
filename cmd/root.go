@@ -1,19 +1,22 @@
 /*
-Copyright © 2025 NAME HERE <EMAIL ADDRESS>
+Copyright © 2025 Gabriel Rau 
 */
 package cmd
 
 import (
-	"fmt"
+	"database/sql"
 	"log"
 	"os"
+	"time"
 
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/gabetrau/reaper/cfg"
-	"github.com/gabetrau/reaper/data"
+	"github.com/gabetrau/reaper/cmd/shared"
 	"github.com/gabetrau/reaper/ui"
 	"github.com/spf13/cobra"
 )
+
+
 
 var globalCfg cfg.ReaperCfg
 
@@ -26,40 +29,27 @@ var rootCmd = &cobra.Command{
 	for creating databases for testing environments.
 	`,
 	Run: func(cmd *cobra.Command, args []string) {
-		src, err := data.Connect(globalCfg.SourceDBInfo)
+		tables := []string{"student", "address", "country", "book", "player", "mob", "pin", "subject", "weapon", "strategy"}
+		
+		src, dest, err := shared.ConnectToDbs(globalCfg)
 		if err != nil {
-			log.Fatalf(err.Error())
+			log.Fatalf("ping error %v", err)
 		}
-		srcPingErr := src.Ping()
-		if srcPingErr != nil {
-			log.Fatalf("source ping error: %v", srcPingErr)
-		}
-		fmt.Printf("Source Connected!\n")
 
-		dest, err := data.Connect(globalCfg.DestDBInfo)
-		if err != nil {
-			log.Fatalf(err.Error())
+		progChan := make(chan ui.Progress)
+		tableMap := make(map[string]ui.Table)
+		for _, e := range tables {
+			go copyTableData(src, dest, e, progChan)
+			tableMap[e] = ui.NewTable(e, progChan)
 		}
-		destPingErr := dest.Ping()
-		if destPingErr != nil {
-			log.Fatalf("destination ping error: %v", destPingErr)
-		}
-		fmt.Printf("Source Connected!\n\n")
-
-		var tables []ui.Table
-		finished := new(bool)
-		*finished = false
-		tables = append(tables, ui.NewTable("student", 0.0))
-		tables = append(tables, ui.NewTable("address", 0.0))
-		tables = append(tables, ui.NewTable("chess", 0.0))
-
 		p := tea.NewProgram(ui.TablesView{
 			Tables: tables,
-			Finished: finished,
+			TableMap: tableMap,
+			ProgChan: progChan,
+			Finished: len(tables),
 		})
 		if _, err := p.Run(); err != nil {
-			fmt.Printf("Alas, there's been an error: %v", err)
-			os.Exit(1)
+			log.Printf("Alas, there's been an error: %v", err)
 		}
 		
 	},
@@ -72,6 +62,17 @@ func Execute(cfg *cfg.ReaperCfg) {
 	err := rootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
+	}
+}
+
+func copyTableData(src *sql.DB, dest *sql.DB, ent string, c chan ui.Progress) {
+	for i := range 10 {
+		time.Sleep(time.Duration(len(ent)) * time.Millisecond * 50)
+		per := (float64(.1) * float64(i + 1))
+		c <- ui.Progress{
+			Name: ent,
+			Percent: per,
+		} 
 	}
 }
 
