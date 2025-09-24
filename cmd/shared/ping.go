@@ -27,7 +27,7 @@ func ConnectToDbs(cfg cfg.ReaperCfg) (*sql.DB, *sql.DB, error) {
 	if destPingErr != nil {
 		log.Fatalf("destination ping error: %v", destPingErr)
 	}
-	log.Printf("Source Connected!\n\n")
+	log.Printf("Destination Connected!\n\n")
 	return src, dest, nil
 }
 
