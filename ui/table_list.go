@@ -22,7 +22,6 @@ var (
 	titleStyle        = lipgloss.NewStyle().MarginLeft(2)
 	itemStyle         = lipgloss.NewStyle().PaddingLeft(4)
 	paginationStyle   = list.DefaultStyles().PaginationStyle.PaddingLeft(4)
-	listHelpStyle	  = list.DefaultStyles().HelpStyle.PaddingLeft(4).PaddingBottom(1)
 	quitTextStyle     = lipgloss.NewStyle().Margin(1, 0, 2, 4)
 	pad 			  = strings.Repeat(" ", padding)
 
@@ -89,7 +88,6 @@ func (tv *TablesView) Init() tea.Cmd {
 	tv.List.SetFilteringEnabled(false)
 	tv.List.Styles.Title = titleStyle
 	tv.List.Styles.PaginationStyle = paginationStyle
-	tv.List.Styles.HelpStyle = helpStyle 
 	return tv.finishCmd() 
 }
 

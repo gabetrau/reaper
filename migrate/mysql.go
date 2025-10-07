@@ -3,7 +3,6 @@ package migrate
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"log"
 
 	"github.com/gabetrau/reaper/cfg"
@@ -48,7 +47,6 @@ func (m *MysqlDB) Connect(ctx *context.Context, info cfg.DBInfo) error {
 	if srcPingErr != nil {
 		log.Fatalf("ping error: %v", srcPingErr)
 	}
-	fmt.Printf("%s Connected!\n", info.DB)
 	return nil 
 }
 
