@@ -3,8 +3,10 @@ package ui
 import (
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 
+	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	"github.com/charmbracelet/bubbles/progress"
 	tea "github.com/charmbracelet/bubbletea"
@@ -22,10 +24,10 @@ var (
 	titleStyle        = lipgloss.NewStyle().MarginLeft(2)
 	itemStyle         = lipgloss.NewStyle().PaddingLeft(4)
 	paginationStyle   = list.DefaultStyles().PaginationStyle.PaddingLeft(4)
-	quitTextStyle     = lipgloss.NewStyle().Margin(1, 0, 2, 4)
+	listHelpStyle	  = list.DefaultStyles().PaginationStyle.PaddingLeft(4).PaddingBottom(1)
 	pad 			  = strings.Repeat(" ", padding)
 
-	helpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("#626262")))
+)
 
 type finishMsg bool 
 
@@ -83,11 +85,23 @@ type TablesView struct {
 }
 
 func (tv *TablesView) Init() tea.Cmd {
-	tv.List.Title = "Tables in Progress"
+	tv.List.Title = strconv.Itoa(*tv.TblsInProg) + " Tables in Progress"
 	tv.List.SetShowStatusBar(false)
 	tv.List.SetFilteringEnabled(false)
+	tv.List.SetShowHelp(true)
+	tv.List.KeyMap.CursorUp.SetEnabled(false)
+	tv.List.KeyMap.CursorDown.SetEnabled(false)
+	tv.List.AdditionalShortHelpKeys = func() []key.Binding {
+		next := tv.List.KeyMap.NextPage
+		prev := tv.List.KeyMap.PrevPage
+		next.SetHelp("→", "next page")
+		prev.SetHelp("←", "prev page")
+		return []key.Binding{prev, next}
+	}
+
 	tv.List.Styles.Title = titleStyle
-	tv.List.Styles.PaginationStyle = paginationStyle
+	tv.List.Styles.HelpStyle = listHelpStyle 
+
 	return tv.finishCmd() 
 }
 
@@ -113,6 +127,7 @@ func (tv *TablesView) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return tv, tea.Quit 
 		}
 		tv.List.Update(msg)
+		tv.List.Title = strconv.Itoa(*tv.TblsInProg) + " Tables in Progress"
 		return tv, tv.finishCmd() 
     }
 
