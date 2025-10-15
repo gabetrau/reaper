@@ -28,6 +28,12 @@ func MakeRelationalDBs(ctx context.Context) (MigratoryDB[Index], MigratoryDB[Ind
 		if err != nil {
 			return nil, nil, err
 		}
+	case cfg.PostgreSQL:
+		src = &PostgresDB{}
+		err := src.Connect(&ctx, config.SourceDBInfo)
+		if err != nil {
+			return nil, nil, err
+		}
 	default:
 		panic("cannot connect to db, config should be valid")
 	}
@@ -36,6 +42,12 @@ func MakeRelationalDBs(ctx context.Context) (MigratoryDB[Index], MigratoryDB[Ind
 	switch config.DestDBInfo.Driver {
 	case cfg.MySQL:
 		dest = &MysqlDB{}
+		err := dest.Connect(&ctx, config.DestDBInfo)
+		if err != nil {
+			return nil, nil, err
+		}
+	case cfg.PostgreSQL:
+		dest = &PostgresDB{}
 		err := dest.Connect(&ctx, config.DestDBInfo)
 		if err != nil {
 			return nil, nil, err
