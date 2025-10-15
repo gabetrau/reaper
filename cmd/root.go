@@ -54,7 +54,7 @@ var (
 			listItems := make([]list.Item, 0)
 			for _, t := range tables {
 				go copyTableData(src, dest, t, progChan)
-				tableMap[t] = ui.NewTable(t, progChan)
+				tableMap[t] = ui.NewTable(t)
 				listItems = append(listItems, tableMap[t])
 			}
 			l := list.New(listItems, ui.TableItemDelegate{}, defaultWidth, listHeight)

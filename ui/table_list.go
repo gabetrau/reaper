@@ -17,7 +17,6 @@ const (
 	padding = 4
 	maxWidth = 200
 	maxTableNameLen = 30
-	listHeight = 15
 )
 
 var (
@@ -26,7 +25,6 @@ var (
 	paginationStyle   = list.DefaultStyles().PaginationStyle.PaddingLeft(4)
 	listHelpStyle	  = list.DefaultStyles().PaginationStyle.PaddingLeft(4).PaddingBottom(1)
 	pad 			  = strings.Repeat(" ", padding)
-
 )
 
 type finishMsg bool 
@@ -152,7 +150,7 @@ func (tv *TablesView) finishCmd() tea.Cmd {
 	}
 }
 
-func NewTable(name string, perChan chan Progress) Table {
+func NewTable(name string) Table {
 	per := float64(0.0)
 	return Table{
 		Name: name,
